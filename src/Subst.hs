@@ -1,10 +1,8 @@
--- Subst.hs
-
 module Subst(
-	identity,
-	single,
-	compose,
-	apply
+  identity,
+  single,
+  compose,
+  apply
 ) where
 
 import Term
@@ -16,10 +14,9 @@ identity t = t
 
 single :: VarName -> Term -> Subst
 single x t = singleLambda x t
-
--- separate for extra type-safety
-singleLambda :: VarName -> Term -> Term -> Term
-singleLambda x t (Var y) = if x == y then t else Var y
+  where
+    singleLambda :: VarName -> Term -> Term -> Term
+    singleLambda x t (Var y) = if x == y then t else Var y
 
 compose :: Subst -> Subst -> Subst
 compose s1 s2 = \t -> s2 (s1 t)
