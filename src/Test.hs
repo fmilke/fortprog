@@ -1,10 +1,12 @@
 import Term
 import Pos
+import Pretty
 
 testTargets = [
     testReplace,
     testReplace2,
-    testAllPos1
+    testAllPos1,
+    testPretty
   ]
 
 testAll :: IO ()
@@ -20,3 +22,5 @@ testReplace = (replaceAt testEntity [0] (Var "z")) == Comb "+" [Var "z", Var "y"
 testReplace2 = (replaceAt testEntity2 [0, 1] (Var "Zzz")) == Comb "+" [Comb "*" [Var "x", Var "Zzz"], Var "y"]
 
 testAllPos1 = (allPos testEntity2) == [[0,0],[0,1],[1]]
+
+testPretty = pretty (Comb "add" [Comb "Succ" [Comb "Zero" []], Comb "mul" [Var "m", Var "n"]]) == "add (Succ Zero) (mul m n)"
