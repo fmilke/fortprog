@@ -1,6 +1,4 @@
-module Pretty(
-  Pretty
-) where
+module Pretty where
 
 import Data.List(intercalate)
 import Term
