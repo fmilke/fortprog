@@ -2,7 +2,8 @@ module Subst(
   identity,
   single,
   compose,
-  apply
+  apply,
+  Subst
 ) where
 
 import Term
