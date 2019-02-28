@@ -1,6 +1,9 @@
 import Term
 import Pos
 import Pretty
+import Match
+
+import Data.Maybe(isJust)
 
 testTargets = [
     testReplace,
@@ -24,3 +27,5 @@ testReplace2 = (replaceAt testEntity2 [0, 1] (Var "Zzz")) == Comb "+" [Comb "*" 
 testAllPos1 = (allPos testEntity2) == [[0,0],[0,1],[1]]
 
 testPretty = pretty (Comb "add" [Comb "Succ" [Comb "Zero" []], Comb "mul" [Var "m", Var "n"]]) == "add (Succ Zero) (mul m n)"
+
+testMatch = isJust (match testEntity testEntity2)
