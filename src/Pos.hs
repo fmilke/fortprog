@@ -5,7 +5,8 @@ module Pos(
   rightOf,
   selectAt,
   replaceAt,
-  allPos
+  allPos,
+  Pos
 ) where
 
 import Term
