@@ -9,7 +9,7 @@ import Term
 -- t1(x)
 -- t2(t3)
 
--- case2: match?
+-- case2: match(?)
 -- t1(x)
 -- t2(y)
 
