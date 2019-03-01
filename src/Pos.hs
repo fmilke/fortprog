@@ -17,23 +17,25 @@ import Utils(mapNth)
 -- Pos(y) = 1 : []
 type Pos = [Int]
 
--- a is above b and in the same 'sub-tree'
-above :: Pos -> Pos -> Bool
-above (a:as) (b:bs) = if a == b then above as bs else False
-
--- a is above b and in the same 'sub-tree'
-below :: Pos -> Pos -> Bool
-below (a:as) (b:bs) = if a == b then below as bs else False
-
--- a is on the left of b and in the same 'sub-tree
-leftOf :: Pos -> Pos -> Bool
-leftOf [a] [b] = a < b
-leftOf (a:as) (b:bs) = if a == b then leftOf as bs else False
-
--- a is on the right of b and in the same 'sub-tree
-rightOf :: Pos -> Pos -> Bool
-rightOf [a] [b] = a > b
-rightOf (a:as) (b:bs) = if a == b then rightOf as bs else False
+  above :: Pos -> Pos -> Bool
+  above [] _ = True
+  above _ [] = False
+  above (p:ps) (q:qs) = p == q && above ps qs
+      
+  below :: Pos -> Pos -> Bool
+  below [] _ = False
+  below _ [] = True
+  below (p:ps) (q:qs) = p == q && below ps qs
+  
+  leftOf :: Pos -> Pos -> Bool
+  leftOf [] _ = False
+  leftOf _ [] = False
+  leftOf (p:ps) (q:qs) = p < q || (p == q && leftOf ps qs)
+    
+  rightOf :: Pos -> Pos -> Bool
+  rightOf [] _ = False
+  rightOf _ [] = False
+  rightOf (p:ps) (q:qs) = p > q || (p == q && rightOf ps qs)
 
 -- selects the sub-term at the given position
 selectAt :: Term -> Pos -> Term
