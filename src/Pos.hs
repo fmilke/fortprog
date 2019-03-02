@@ -4,6 +4,7 @@ module Pos(
   leftOf,
   rightOf,
   selectAt,
+  maybeSelectAt,
   replaceAt,
   allPos,
   Pos
@@ -40,9 +41,23 @@ rightOf (p:ps) (q:qs) = p > q || (p == q && rightOf ps qs)
 -- selects the sub-term at the given position
 selectAt :: Term -> Pos -> Term
 selectAt t               []     = t
-selectAt (Var n)         (_:_)  = error ("Erronously accessing sub-terms of Var")
-selectAt (Comb _ (t:_ )) (1:ps) = selectAt t ps
-selectAt (Comb n (_:ts)) (p:ps) = selectAt (Comb n ts) ((p - 1):ps) 
+selectAt (Var n)         (_:_)  = error "Erronously accessing sub-terms of Var"
+selectAt (Comb n [])         _  = error ("Erronously accessing sub-terms of childless term: " ++ n)
+selectAt (Comb _ (t:ts)) (p:ps) 
+  | p == 1    = selectAt t ps
+  | p <  1    = error "Invalid position"
+  | otherwise = selectAt (Comb "" ts) ((p - 1):ps)
+
+-- this is a more secure version of selectAt
+-- and therefore is more suitable for tests
+maybeSelectAt :: Term -> Pos -> Maybe Term
+maybeSelectAt t               []     = Just t
+maybeSelectAt (Var n)         (_:_)  = Nothing
+maybeSelectAt (Comb n [])         _  = Nothing
+maybeSelectAt (Comb _ (t:ts)) (p:ps) 
+  | p == 1    = maybeSelectAt t ps
+  | p <  1    = Nothing
+  | otherwise = maybeSelectAt (Comb "" ts) ((p - 1):ps)
 
 {-|
   @Term: term to replace in
