@@ -13,6 +13,6 @@ instance Pretty (Term) where
   pretty (Comb n []) = n
   pretty (Comb n ts) = n ++ " " ++  (intercalate " " (map (\t -> pretty' t) ts))
     where
-      pretty' (Var n)     = n
-      pretty' (Comb n []) = n
-      pretty' (Comb n ts) = "(" ++ n ++ " " ++  (intercalate " " (map (\t -> pretty' t) ts)) ++ ")"
+      pretty' (Var m)     = m
+      pretty' (Comb m []) = m
+      pretty' (Comb m xs) = "(" ++ m ++ " " ++  (intercalate " " (map (\t -> pretty' t) xs)) ++ ")"
