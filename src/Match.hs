@@ -35,9 +35,9 @@ match t1 t2 = step t1 t2 (Just identity)
     -- case2:
     step (Var n) t (Just subst)   = (Just (compose (single n t) subst))
     -- iterate over arguments and meanwhile check for comparable length
-    step (Comb n []) (Comb m (x:xs)) _ = Nothing
-    step (Comb n (x:xs)) (Comb m []) _ = Nothing
-    step (Comb n []) (Comb m []) maybe = if n == m then maybe else Nothing
+    step (Comb _ []) (Comb _ (_:_)) _ = Nothing
+    step (Comb _ (_:_)) (Comb _ []) _ = Nothing
+    step (Comb n []) (Comb m []) mayItBe = if n == m then mayItBe else Nothing
     step (Comb n (t:ts)) (Comb m (r:rs)) (Just subst)
       -- case3:
       | n == m    = (step (Comb n ts) (Comb n rs) (step t r (Just subst)))
