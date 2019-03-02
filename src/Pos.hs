@@ -39,8 +39,10 @@ rightOf (p:ps) (q:qs) = p > q || (p == q && rightOf ps qs)
 
 -- selects the sub-term at the given position
 selectAt :: Term -> Pos -> Term
-selectAt (Comb n (t:ts)) (0:ps) = selectAt (Comb n ts) ps
-selectAt (Comb n (t:ts)) (p:ps) = selectAt (Comb n ts) ((p - 1):ps)
+selectAt t               []     = t
+selectAt (Var n)         (_:_)  = error ("Erronously accessing sub-terms of Var")
+selectAt (Comb _ (t:_ )) (1:ps) = selectAt t ps
+selectAt (Comb n (_:ts)) (p:ps) = selectAt (Comb n ts) ((p - 1):ps) 
 
 {-|
   @Term: term to replace in
