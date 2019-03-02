@@ -7,15 +7,15 @@ module Subst(
 ) where
 
 import Term
-
+-- TODO: VarName -> Term
 type Subst = (Term -> Term)
 
 identity :: Subst
 identity t = t
 
-single:: VarName -> Term -> Subst
-  single vn t1 = \t2 -> if t2 == Var vn then t1
-    else t2
+single :: VarName -> Term -> Subst
+single vn t1 = \t2 -> if t2 == Var vn then t1
+  else t2
 
 compose :: Subst -> Subst -> Subst
 compose s1 s2 = \t -> s2 (s1 t)
