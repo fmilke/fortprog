@@ -52,8 +52,8 @@ selectAt (Comb _ (t:ts)) (p:ps)
 -- and therefore is more suitable for tests
 maybeSelectAt :: Term -> Pos -> Maybe Term
 maybeSelectAt t               []     = Just t
-maybeSelectAt (Var n)         (_:_)  = Nothing
-maybeSelectAt (Comb n [])         _  = Nothing
+maybeSelectAt (Var _)         (_:_)  = Nothing
+maybeSelectAt (Comb _ [])         _  = Nothing
 maybeSelectAt (Comb _ (t:ts)) (p:ps) 
   | p == 1    = maybeSelectAt t ps
   | p <  1    = Nothing
@@ -66,7 +66,7 @@ maybeSelectAt (Comb _ (t:ts)) (p:ps)
   @Term: term with replaced sub term
 -}
 replaceAt :: Term -> Pos -> Term -> Term
-replaceAt t1 [] t2 = t2
+replaceAt _ [] t2 = t2
 replaceAt (Comb n ts) (p:ps) t2 = Comb n (
     mapNth (\subT -> (replaceAt subT ps t2)) ts p
   )
@@ -74,7 +74,7 @@ replaceAt (Comb n ts) (p:ps) t2 = Comb n (
 -- returns all possible position of sub-terms in a given term
 allPos :: Term -> [Pos]
 allPos (Var _)  = [[]]
-allPos (Comb _ ts) = [] : iter ts 1
+allPos (Comb _ xs) = [] : iter xs 1
   where
     iter []     _ = []
     iter (t:ts) n = (map (\p -> n : p) (allPos t)) ++ (iter ts (n + 1))
