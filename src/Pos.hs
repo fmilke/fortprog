@@ -41,7 +41,7 @@ rightOf (p:ps) (q:qs) = p > q || (p == q && rightOf ps qs)
 -- selects the sub-term at the given position
 selectAt :: Term -> Pos -> Term
 selectAt t               []     = t
-selectAt (Var n)         (_:_)  = error "Erronously accessing sub-terms of Var"
+selectAt (Var n)         (_:_)  = error ("Erronously accessing sub-terms of Var: " ++ n)
 selectAt (Comb n [])         _  = error ("Erronously accessing sub-terms of childless term: " ++ n)
 selectAt (Comb _ (t:ts)) (p:ps) 
   | p == 1    = selectAt t ps
