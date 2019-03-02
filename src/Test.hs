@@ -40,6 +40,7 @@ testAllPos1 = (allPos testEntity2) == [[],[1],[1,1],[1,2],[2]]
 
 testPretty :: Bool
 testPretty = pretty (Comb "add" [Comb "Succ" [Comb "Zero" []], Comb "mul" [Var "m", Var "n"]]) == "add (Succ Zero) (mul m n)"
+testMatch :: Bool
 testMatch = isJust (match testEntity testEntity2)
 
 -- selectAt
