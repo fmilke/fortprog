@@ -1,3 +1,5 @@
+module Test(testMultiple) where
+
 import Term
 import Pos
 import Pretty
@@ -5,8 +7,8 @@ import Match
 
 import Data.Maybe(isJust, isNothing)
 
-testTargets :: [(Bool)]
-testTargets = [
+tests :: [(Bool)]
+tests = [
     testReplace,
     testReplace2,
     testAllPos1,
@@ -20,10 +22,11 @@ testTargets = [
   ]
 
 testAll :: IO ()
-testAll = doTest testTargets
-  where
-    doTest []     = putStrLn("All tests passed!")
-    doTest (t:ts) = if t == True then doTest ts else putStrLn "Test failed"
+testAll = testMultiple tests
+
+testMultiple :: [Bool] -> IO ()
+testMultiple []     = putStrLn("All tests passed!")
+testMultiple (t:ts) = if t == True then testMultiple ts else putStrLn "Test failed"
 
 testEntity :: Term
 testEntity = Comb "+" [Var "x", Var "y"]
