@@ -19,9 +19,9 @@ negRhs :: Term
 negRhs = Comb "-" [Var "x"]
 
 squareLhs :: Term
-squareLhs = Comb "square" [Var "x"] :: Term
+squareLhs = Comb "square" [Var "x"]
 squareRhs :: Term
-squareRhs = Comb "*" [Var "x", Var "x"] :: Term
+squareRhs = Comb "*" [Var "x", Var "x"]
 
 prog :: Prog
 prog = Prog [Rule negLhs negRhs, Rule squareLhs squareRhs]
