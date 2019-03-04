@@ -11,7 +11,7 @@ import Term
 findRule :: Prog -> Term -> Maybe (Rhs, Subst)
 findRule (Prog [])     _  = Nothing
 findRule (Prog ((Rule lhs rhs):rs)) t = case match t lhs of
-  Nothing    -> Nothing
+  Nothing    -> findRule (Prog rs) t
   Just subst -> Just (rhs, subst)
 
 -- returns Nothing if not able
