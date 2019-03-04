@@ -29,9 +29,13 @@ prog = Prog [Rule negLhs negRhs, Rule squareLhs squareRhs]
 testFindRule1 :: Bool
 testFindRule1 = case findRule prog squareLhs of
   Just (rhs, _) -> rhs == squareRhs
-  Nothing -> False
+  Nothing       -> False
 
 testFindRule2 :: Bool
 testFindRule2 = isNothing (findRule prog (Comb "++" [Var "x"]))
 
 -- reduce
+testReduceAt :: Bool
+testReduceAt = case (reduceAt prog (Comb "square" [Var "y"]) []) of
+  Just res ->  res == Comb "*" [Var "y", Var "y"]
+  Nothing  -> False
