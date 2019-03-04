@@ -7,19 +7,19 @@ module Subst(
 ) where
 
 import Term
--- TODO: VarName -> Term
-type Subst = (Term -> Term)
+
+type Subst = (VarName -> Term)
 
 identity :: Subst
-identity t = t
+identity vn = Var vn
 
 single :: VarName -> Term -> Subst
-single vn t1 = \t2 -> if t2 == Var vn then t1
-  else t2
+single vn t1 = \vn2 -> if vn == vn2 then t1
+  else Var vn2
 
 compose :: Subst -> Subst -> Subst
-compose s1 s2 = \t -> s2 (s1 t)
+compose s1 s2 = \vn -> apply s2 (s1 vn)
 
 apply :: Subst -> Term -> Term
-apply subst (Comb name ts) = Comb name (map (apply subst) ts)
-apply subst t = subst t
+apply subst (Var name) = subst name
+apply subst (Comb name ts) = Comb name (map (apply subst) ts) 
