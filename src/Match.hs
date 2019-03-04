@@ -5,25 +5,29 @@ module Match (
 import Subst
 import Term
 
--- case1: match
--- t1(x)
--- t2(t3)
+-- rules for matching
+-- where t1, t2 are the terms to match
+-- x, y are variables and t3,t4 are distinct sub-terms
 
--- case2: match(?)
--- t1(x)
--- t2(y)
+-- case1: match
+-- t1 := x
+-- t2 := t3
+
+-- case2: match
+-- t1 := x
+-- t2 := y
 
 -- case3: match
--- t1(t3)
--- t2(t3)
+-- t1 := t3
+-- t2 := t3
 
 -- case4: no match !
--- t1(t3)
--- t2(t4)
+-- t1 := t3
+-- t2 := t4
 
 -- case5: no match !
--- t1(t3)
--- t2(z)
+-- t1 := t3
+-- t2 := x
 
 match :: Term -> Term -> Maybe Subst
 match t1 t2 = step t1 t2 (Just identity)
