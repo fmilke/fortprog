@@ -1,6 +1,6 @@
 import Term
 import Subst
-import Test
+import Test(testMultiple)
 
 tests :: [Bool]
 tests = [

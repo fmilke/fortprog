@@ -1,4 +1,4 @@
-module Test(testMultiple) where
+module Test(testAll, testMultiple) where
 
 import Term
 import Pos
@@ -7,12 +7,14 @@ import Match
 
 import Data.Maybe(isJust, isNothing)
 
-tests :: [(Bool)]
+tests :: [Bool]
 tests = [
     testReplace,
     testReplace2,
     testAllPos1,
     testPretty,
+    testMatch1,
+    testMatch2,
     testSelectAt1,
     testSelectAt2,
     testSelectAt3,
@@ -43,8 +45,12 @@ testAllPos1 = (allPos testEntity2) == [[],[1],[1,1],[1,2],[2]]
 
 testPretty :: Bool
 testPretty = pretty (Comb "add" [Comb "Succ" [Comb "Zero" []], Comb "mul" [Var "m", Var "n"]]) == "add (Succ Zero) (mul m n)"
-testMatch :: Bool
-testMatch = isJust (match testEntity testEntity2)
+
+testMatch1 :: Bool
+testMatch1 = isJust (match testEntity testEntity2)
+
+testMatch2 :: Bool
+testMatch2 = isNothing (match testEntity (Var "x"))
 
 -- selectAt
 testSelectAt1 :: Bool
