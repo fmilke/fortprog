@@ -1,6 +1,5 @@
 module Rule where
 
-import Data.Maybe(isNothing)
 import Pos
 import Match
 import Prog
