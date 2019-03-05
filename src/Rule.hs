@@ -14,14 +14,16 @@ findRule (Prog ((Rule lhs rhs):rs)) t = case match lhs t of
   Nothing    -> findRule (Prog rs) t
   Just subst -> Just (rhs, subst)
 
--- returns Nothing if not able
--- to reduce at the given position
+-- tries to reduce at a given position
+-- returns nothing if no matching rule is foudn
 reduceAt :: Prog -> Term -> Pos -> Maybe Term
 reduceAt prog t pos = let subTerm = selectAt t pos in
   case findRule prog subTerm of
     Nothing           -> Nothing
     Just (rhs, subst) -> Just (replaceAt t pos (apply subst rhs))
 
+-- returns all position where a rule for
+-- reduction exists
 reduciblePos :: Prog -> Term -> [Pos]
 reduciblePos prog t = filter reducible (allPos t)
   where
