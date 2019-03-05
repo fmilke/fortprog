@@ -10,7 +10,7 @@ import Term
 -- does stuff
 findRule :: Prog -> Term -> Maybe (Rhs, Subst)
 findRule (Prog [])     _  = Nothing
-findRule (Prog ((Rule lhs rhs):rs)) t = case match t lhs of
+findRule (Prog ((Rule lhs rhs):rs)) t = case match lhs t of
   Nothing    -> findRule (Prog rs) t
   Just subst -> Just (rhs, subst)
 
