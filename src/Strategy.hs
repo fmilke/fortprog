@@ -48,12 +48,8 @@ riStrategy prog term = sortBy riSort (reduciblePos prog term)
 -- reduces a given term with the given strategy
 reduceWith :: Strategy -> Prog -> Term -> Maybe Term
 reduceWith strat prog t = case strat prog t of
-  [] -> Nothing
-  xs -> iter xs (Just t)
-    where
-      iter _      Nothing   = error "Trying to reduce a reducible position"
-      iter []     maybeTerm = maybeTerm
-      iter (p:ps) (Just rt) = iter ps (reduceAt prog rt p)
+  []     -> Nothing
+  (p:_) -> reduceAt prog t p
 
 -- evaluateWith :: Strategy -> Prog -> Term -> Term
 -- evaluateWith strat prog t = strat prog t
