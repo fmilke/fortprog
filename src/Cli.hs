@@ -22,13 +22,14 @@ greeting = "Welcome to Simple Haskell! \n\
   \Type \":help\" for help."
 
 main :: IO ()
-main = putStrLn greeting >> inputLoop
+main = putStrLn greeting >> inputListener
 
-inputLoop :: IO ()
-inputLoop = do
+inputListener :: IO ()
+inputListener = do
+  putStr "> "
   inp <- getLine
   case handleInput inp of
-    Just io -> io >> inputLoop
+    Just io -> io >> inputListener
     Nothing -> putStrLn quitMsg
 
 handleInput :: String -> Maybe (IO ())
