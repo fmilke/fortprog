@@ -7,7 +7,7 @@ import Prog
 import Subst
 import Term
 
--- does stuff
+-- finds a rule matching the given term (root-level only)
 findRule :: Prog -> Term -> Maybe (Rhs, Subst)
 findRule (Prog [])     _  = Nothing
 findRule (Prog ((Rule lhs rhs):rs)) t = case match lhs t of
@@ -32,4 +32,4 @@ reduciblePos prog t = filter reducible (allPos t)
 -- we call a term of normal form
 -- if there is no rule left matching it
 isNormalForm :: Prog -> Term -> Bool
-isNormalForm prog t = isNothing (findRule prog t)
+isNormalForm prog t = reduciblePos prog t == []
