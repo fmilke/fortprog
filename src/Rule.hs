@@ -20,7 +20,7 @@ reduceAt :: Prog -> Term -> Pos -> Maybe Term
 reduceAt prog t pos = let subTerm = selectAt t pos in
   case findRule prog subTerm of
     Nothing           -> Nothing
-    Just (rhs, subst) -> Just (replaceAt t pos rhs)
+    Just (rhs, subst) -> Just (replaceAt t pos (apply subst rhs))
 
 reduciblePos :: Prog -> Term -> [Pos]
 reduciblePos prog t = filter reducible (allPos t)
