@@ -45,11 +45,12 @@ riStrategy prog term = sortBy riSort (reduciblePos prog term)
 -- poStrategy :: Strategy
 -- piStrategy :: Strategy
 
--- reduces a given term with the given strategy
+-- perform a single reduction of
+-- a given term with the given strategy
 reduceWith :: Strategy -> Prog -> Term -> Maybe Term
 reduceWith strat prog t = case strat prog t of
   []     -> Nothing
   (p:_) -> reduceAt prog t p
 
--- evaluateWith :: Strategy -> Prog -> Term -> Term
--- evaluateWith strat prog t = strat prog t
+evaluateWith :: Strategy -> Prog -> Term -> Term
+evaluateWith strat prog t = strat prog t
