@@ -16,14 +16,6 @@ tests = [
     testReduceAt
   ]
 
--- returns Nothing if not able
--- to reduce at the given position
-red :: Prog -> Term -> Pos -> Maybe Term
-red prog t pos = let subTerm = selectAt t pos in
-  case findRule prog subTerm of
-    Nothing           -> Nothing
-    Just (rhs, subst) -> Just (replaceAt t pos (apply subst rhs))
-
 testAll :: IO ()
 testAll = testMultiple tests
 
