@@ -56,6 +56,6 @@ testFindRule4 = case findRule prog (Comb "square" [Comb "neg" [Var "y"]]) of
 
 -- reduce
 testReduceAt :: Bool
-testReduceAt = case (red prog (Comb "square" [Var "y"]) []) of
+testReduceAt = case (reduceAt prog (Comb "square" [Var "y"]) []) of
   Just res ->  res == Comb "*" [Var "y", Var "y"]
   Nothing  -> error "something wrong wih the test setup"
