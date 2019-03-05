@@ -52,5 +52,10 @@ reduceWith strat prog t = case strat prog t of
   []     -> Nothing
   (p:_) -> reduceAt prog t p
 
+-- evaluates a given term with the given
+-- program and strategy until no more
+-- reduction is possible
 evaluateWith :: Strategy -> Prog -> Term -> Term
-evaluateWith strat prog t = strat prog t
+evaluateWith strat prog t = case reduceWith strat prog t of
+  Nothing -> t
+  Just rt -> evaluateWith strat prog rt
