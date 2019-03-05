@@ -8,7 +8,9 @@ tests = [
     testSingle1,
     testSingle2,
     testCompose1,
-    testCompose2
+    testCompose2,
+    testApply1,
+    testApply2
   ]
 
 testAll :: IO ()
@@ -31,3 +33,9 @@ testCompose1 = apply composed (Var "x") == Var "z"
 
 testCompose2 :: Bool
 testCompose2 = apply composed (Var "x") == apply (single "y" (Var "z")) (apply (single "x" (Var "y")) (Var "x"))
+
+testApply1 :: Bool
+testApply1 = (apply (single "x" (Var "y")) (Var "x")) == Var "y"
+
+testApply2 :: Bool
+testApply2 = (apply (single "x" (Var "z")) (Comb "*" [Var "x", Var "y"])) == Comb "*" [Var "z", Var "y"]
