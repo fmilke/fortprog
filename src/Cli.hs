@@ -1,4 +1,4 @@
-import Parser()
+import Parser(parseFile)
 import Prog
 import Strategy
 
@@ -25,9 +25,13 @@ defaultStrategy :: Strategy
 defaultStrategy = liStrategy
 data CliState = CliState (Maybe Prog, Strategy)
 
+-- entry point for cli
 main :: IO ()
 main = putStrLn greeting >> inputListener (CliState (Nothing, defaultStrategy))
 
+-- listens for input and delegates
+-- input to handler; does this in a 
+-- loop until handler returns Nothing
 inputListener :: CliState -> IO ()
 inputListener state = do
   putStr "> "
@@ -52,7 +56,28 @@ handleCliCommand (command:params) state
   | command `elem` [":h", ":help"] = Just (putStrLn helpMsg, state)
   | command `elem` [":q", ":quit"] = Nothing
   | command `elem` [":s", ":set"]  = changeStrategy (head params) state
+  | command `elem` [":l", ":load"] = handleLoad (head params) state
   | otherwise                      = Just (return (), state)
+
+-- if a filepath is given, loads the specified
+-- program; otherwise unloads the current programm
+handleLoad :: FilePath -> CliState -> InputResult
+handleLoad []       (CliState (_, strat)) = Just (putStrLn "Unloaded module.", CliState (Nothing, strat))
+handleLoad filePath (CliState (_, strat)) = let parsed = parseFile filePath in
+  Just (extractError parsed, CliState (extractProg uiProgOrError, strat))
+    where
+      extractError :: IO (Either String Prog) -> IO ()
+      extractError uiProgOrError = do
+        result <- uiProgOrError
+        case result of
+          Left errMsg -> putStrLn errMsg
+          Right     _ -> return ()
+      extractProg :: IO (Either String Prog) -> Maybe Prog
+      extractProg uiProgOrError = do
+        result <- uiProgOrError
+        case result of
+          Left _     -> Nothing
+          Right prog -> Just prog
 
 changeStrategy :: String -> CliState -> InputResult
 changeStrategy [] state = Just (return (), state)
