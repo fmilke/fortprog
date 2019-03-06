@@ -36,4 +36,5 @@ handleInput :: String -> Maybe (IO ())
 handleInput inp
   | inp `elem` [":h", ":help"] = Just (putStrLn helpMsg)
   | inp `elem` [":q", ":quit"] = Nothing
+  | inp == ""                  = Just (return ())
   | otherwise                  = Just (putStrLn invalidInputMsg)
