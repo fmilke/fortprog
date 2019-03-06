@@ -2,6 +2,7 @@ module Pretty where
 
 import Data.List(intercalate)
 import Term
+import Prog
 
 -- Class instance for
 -- displaying anything in pretty
@@ -16,3 +17,10 @@ instance Pretty (Term) where
       pretty' (Var m)     = m
       pretty' (Comb m []) = m
       pretty' (Comb m xs) = "(" ++ m ++ " " ++  (intercalate " " (map (\t -> pretty' t) xs)) ++ ")"
+
+instance Pretty (Prog) where
+  pretty (Prog [])     = ""
+  pretty (Prog (r:rs)) = (pretty r) ++ ('\n' : (pretty (Prog rs)))
+
+instance Pretty (Rule) where
+  pretty (Rule l r) = (pretty l) ++ " = " ++ (pretty r)
