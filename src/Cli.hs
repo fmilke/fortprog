@@ -18,7 +18,7 @@ helpMsg = "Commands available from the prompt:\n\
   \  :q[uit]            Exits the interactive environment."
 
 quitMsg :: String
-quitMsg = "Leaving..."
+quitMsg = "You quit."
 
 greeting :: String
 greeting = "Welcome to Simple Haskell! \n\
@@ -27,6 +27,9 @@ greeting = "Welcome to Simple Haskell! \n\
 defaultStrategy :: Strategy
 defaultStrategy = liStrategy
 
+-- Flag to indicate wether the
+-- program should halt before
+-- the next iteration
 type HaltProgram = Bool
 type LastFilePath = FilePath
 data CliState = CliState (Maybe Prog, Strategy, HaltProgram, LastFilePath)
@@ -52,6 +55,8 @@ setFilePath (CliState (p, s, h, _)) fp = CliState (p, s, h, fp)
 getFilePath :: CliState -> FilePath
 getFilePath (CliState (_, _, _, fp)) = fp
 
+-- outputs the result of evaluation of a given
+-- term in the context of a given state
 evaluateExpr :: CliState -> Term -> String
 evaluateExpr (CliState (Nothing, _, _, _)) _   = "No program given"
 evaluateExpr (CliState (Just p, s, _, _)) expr = pretty (evaluateWith s p expr)
@@ -74,16 +79,21 @@ inputListener state = do
 
 type InputResult = IO (CliState)
 
+-- tries to identify the input as a command
+-- in the form of :command <param> otherwise
+-- tries to evaluate it with the currently
+-- loaded program
 handleInput :: String -> CliState -> InputResult
 handleInput inp state = case toArgs inp of
   Just args -> handleCliCommand args state
-  -- TODO: try to parse input as script input
   Nothing   -> case parse inp of
     Left errMsg -> (putStrLn errMsg) >> return (state)
     Right expr  -> (putStrLn (evaluateExpr state expr)) >> return (state)
 
 type Args = [String]
 
+-- invokes commands based on the input
+-- given by a form of [Command, Param1]
 handleCliCommand :: Args -> CliState -> InputResult
 handleCliCommand [] state = return (state)
 handleCliCommand (command:params) state
@@ -97,6 +107,7 @@ handleCliCommand (command:params) state
   | command `elem` [":p", ":prog"]   = handleShowProg state
   | otherwise                        = return (state)
 
+-- prints the currently loaded program to the console 
 handleShowProg :: CliState -> InputResult
 handleShowProg state = case getProgram state of 
   Nothing -> (putStrLn "No program loaded.") >> return (state)
@@ -112,12 +123,15 @@ handleLoad filePath state = do
     Left errMsg -> (putStrLn errMsg) >> return (state)
     Right prog  -> (putStrLn "Module loaded.") >> return (setFilePath (setProgram state (Just prog)) filePath)
 
+-- replaces the current strategy by one
+-- indicated by an alias
 handleStrategyChange :: String -> CliState -> InputResult
 handleStrategyChange [] state = return (state)
 handleStrategyChange alias state = case getStrategyByAlias alias of
   Just newStrat -> (putStrLn ("Changed strategy to '" ++ alias ++ "'")) >> return (setStrategy state newStrat)
   Nothing       -> (putStrLn "Invalid strategy alias, see :help for details") >> return (state)
 
+-- strategy aliases
 getStrategyByAlias :: String -> Maybe Strategy
 getStrategyByAlias alias
   | alias == "lo" = Just loStrategy
