@@ -36,50 +36,42 @@ inputListener :: CliState -> IO ()
 inputListener state = do
   putStr "> "
   inp <- getLine
-  case handleInput inp state of
+  effect <- handleInput inp state
+  case effect of
     Just (io, newState) -> io >> inputListener newState
     Nothing             -> putStrLn quitMsg
 
-type InputResult = Maybe ((IO ()), CliState)
+type InputEffect = Maybe ((IO ()), CliState)
+type InputResult = IO (InputEffect)
 
 handleInput :: String -> CliState -> InputResult
 handleInput inp state = case toArgs inp of
   Just args -> handleCliCommand args state
   -- try to parse input as script input
-  Nothing   -> Just (putStrLn "invalid arguments given", state)
+  Nothing   -> return (Just (putStrLn "invalid arguments given", state))
 
 type Args = [String]
 
 handleCliCommand :: Args -> CliState -> InputResult
-handleCliCommand [] state = Just (return (), state)
+handleCliCommand [] state = return (Just (return (), state))
 handleCliCommand (command:params) state
-  | command `elem` [":h", ":help"] = Just (putStrLn helpMsg, state)
-  | command `elem` [":q", ":quit"] = Nothing
-  | command `elem` [":s", ":set"]  = changeStrategy (head params) state
+  | command `elem` [":h", ":help"] = return (Just (putStrLn helpMsg, state))
+  | command `elem` [":q", ":quit"] = return (Nothing)
+  | command `elem` [":s", ":set"]  = return (changeStrategy (head params) state)
   | command `elem` [":l", ":load"] = handleLoad (head params) state
-  | otherwise                      = Just (return (), state)
+  | otherwise                      = return (Just (return (), state))
 
 -- if a filepath is given, loads the specified
 -- program; otherwise unloads the current programm
 handleLoad :: FilePath -> CliState -> InputResult
-handleLoad []       (CliState (_, strat)) = Just (putStrLn "Unloaded module.", CliState (Nothing, strat))
-handleLoad filePath (CliState (_, strat)) = let parsed = parseFile filePath in
-  Just (extractError parsed, CliState (extractProg uiProgOrError, strat))
-    where
-      extractError :: IO (Either String Prog) -> IO ()
-      extractError uiProgOrError = do
-        result <- uiProgOrError
-        case result of
-          Left errMsg -> putStrLn errMsg
-          Right     _ -> return ()
-      extractProg :: IO (Either String Prog) -> Maybe Prog
-      extractProg uiProgOrError = do
-        result <- uiProgOrError
-        case result of
-          Left _     -> Nothing
-          Right prog -> Just prog
+handleLoad []       (CliState (_, strat)) = return (Just (putStrLn "Unloaded module.", CliState (Nothing, strat)))
+handleLoad filePath (CliState (_, strat)) = do
+  parsed <- parseFile filePath
+  case parsed of
+    Left errMsg -> return (Just (putStrLn errMsg, CliState (Nothing, strat)))
+    Right prog  -> return (Just (putStrLn "Module loaded.", CliState (Just prog, strat)))
 
-changeStrategy :: String -> CliState -> InputResult
+changeStrategy :: String -> CliState -> InputEffect
 changeStrategy [] state = Just (return (), state)
 changeStrategy alias (CliState (prog, oldStrat)) = case getStrategyByAlias alias of
   Just newStrat -> Just (putStrLn ("Changed strategy to '" ++ alias ++ "'"), CliState (prog, newStrat))
