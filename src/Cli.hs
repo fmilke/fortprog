@@ -1,7 +1,8 @@
-import Parser(parseFile)
+import Parser(parseFile, parse)
 import Prog
 import Strategy
 import Pretty
+import Term
 
 helpMsg :: String
 helpMsg = "Commands available from the prompt:\n\
@@ -45,6 +46,16 @@ setProgram (CliState (_, s, h, fp)) p = CliState (p, s, h, fp)
 getProgram :: CliState -> Maybe Prog
 getProgram (CliState (p, _, _, _)) = p
 
+setFilePath :: CliState -> FilePath -> CliState
+setFilePath (CliState (p, s, h, _)) fp = CliState (p, s, h, fp)
+
+getFilePath :: CliState -> FilePath
+getFilePath (CliState (_, _, _, fp)) = fp
+
+evaluateExpr :: CliState -> Term -> String
+evaluateExpr (CliState (Nothing, _, _, _)) _   = "No program given"
+evaluateExpr (CliState (Just p, s, _, _)) expr = pretty (evaluateWith s p expr)
+
 -- entry point for cli
 main :: IO ()
 main = putStrLn greeting >> inputListener initialState
@@ -67,21 +78,24 @@ handleInput :: String -> CliState -> InputResult
 handleInput inp state = case toArgs inp of
   Just args -> handleCliCommand args state
   -- TODO: try to parse input as script input
-  Nothing   -> (putStrLn "invalid arguments given") >> return (state)
+  Nothing   -> case parse inp of
+    Left errMsg -> (putStrLn errMsg) >> return (state)
+    Right expr  -> (putStrLn (evaluateExpr state expr)) >> return (state)
 
 type Args = [String]
 
 handleCliCommand :: Args -> CliState -> InputResult
 handleCliCommand [] state = return (state)
 handleCliCommand (command:params) state
-  | command `elem` [":h", ":help"] = (putStrLn helpMsg) >> return (state)
-  | command `elem` [":q", ":quit"] = return (setHaltFlag state True)
-  | command `elem` [":s", ":set" ] = handleStrategyChange (head params) state
+  | command `elem` [":h", ":help"]   = (putStrLn helpMsg) >> return (state)
+  | command `elem` [":q", ":quit"]   = return (setHaltFlag state True)
+  | command `elem` [":s", ":set" ]   = handleStrategyChange (head params) state
+  | command `elem` [":r", ":reload"] = handleLoad (getFilePath state) state
   | command `elem` [":l", ":load"]
-    && params == []                = handleLoad [] state
-  | command `elem` [":l", ":load"] = handleLoad (head params) state
-  | command `elem` [":p", ":prog"] = handleShowProg state
-  | otherwise                      = return (state)
+    && params == []                  = handleLoad [] state
+  | command `elem` [":l", ":load"]   = handleLoad (head params) state
+  | command `elem` [":p", ":prog"]   = handleShowProg state
+  | otherwise                        = return (state)
 
 handleShowProg :: CliState -> InputResult
 handleShowProg state = case getProgram state of 
@@ -96,7 +110,7 @@ handleLoad filePath state = do
   parsed <- parseFile filePath
   case parsed of
     Left errMsg -> (putStrLn errMsg) >> return (state)
-    Right prog  -> (putStrLn "Module loaded.") >> return (setProgram state (Just prog))
+    Right prog  -> (putStrLn "Module loaded.") >> return (setFilePath (setProgram state (Just prog)) filePath)
 
 handleStrategyChange :: String -> CliState -> InputResult
 handleStrategyChange [] state = return (state)
