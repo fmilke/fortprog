@@ -59,14 +59,15 @@ handleCliCommand (command:params) state
   | command `elem` [":h", ":help"] = return (Just (putStrLn helpMsg, state))
   | command `elem` [":q", ":quit"] = return (Nothing)
   | command `elem` [":s", ":set" ] = return (changeStrategy (head params) state)
-  | command `elem` [":l", ":load"] && params == [] = handleLoad [] state
+  | command `elem` [":l", ":load"]
+    && params == []                = handleLoad [] state
   | command `elem` [":l", ":load"] = handleLoad (head params) state
   | command `elem` [":p", ":prog"] = handleShowProg state
   | otherwise                      = return (Just (return (), state))
 
 handleShowProg :: CliState -> InputResult
 handleShowProg (CliState (Just prog, strat)) = return (Just (putStrLn (pretty prog), CliState (Just prog, strat)))
-handleShowProg state = return (Just (putStrLn "No program loaded", state))
+handleShowProg state = return (Just (putStrLn "No program loaded.", state))
 
 -- if a filepath is given, loads the specified
 -- program; otherwise unloads the current programm
