@@ -20,6 +20,7 @@ instance Pretty (Term) where
 
 instance Pretty (Prog) where
   pretty (Prog [])     = ""
+  pretty (Prog [r])    = pretty r
   pretty (Prog (r:rs)) = (pretty r) ++ ('\n' : (pretty (Prog rs)))
 
 instance Pretty (Rule) where
