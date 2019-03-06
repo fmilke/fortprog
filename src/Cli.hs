@@ -59,6 +59,7 @@ handleCliCommand (command:params) state
   | command `elem` [":h", ":help"] = return (Just (putStrLn helpMsg, state))
   | command `elem` [":q", ":quit"] = return (Nothing)
   | command `elem` [":s", ":set" ] = return (changeStrategy (head params) state)
+  | command `elem` [":l", ":load"] && params == [] = handleLoad [] state
   | command `elem` [":l", ":load"] = handleLoad (head params) state
   | command `elem` [":p", ":prog"] = handleShowProg state
   | otherwise                      = return (Just (return (), state))
