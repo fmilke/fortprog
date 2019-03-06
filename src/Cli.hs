@@ -11,6 +11,7 @@ helpMsg = "Commands available from the prompt:\n\
   \  :l[oad]            Unloads the currently loaded file.\n\
   \  :r[eload]          Reloads the lastly loaded file.\n\
   \  :s[et] <strategy>  Sets the specified evaluation strategy\n\
+  \  :p[rog]            Outputs the currently loaded program\n\
   \                     where <strategy> is one of 'lo', 'li',\n\
   \                     'ro', 'ri', 'po', or 'pi'.\n\
   \  :q[uit]            Exits the interactive environment."
@@ -24,11 +25,29 @@ greeting = "Welcome to Simple Haskell! \n\
 
 defaultStrategy :: Strategy
 defaultStrategy = liStrategy
-data CliState = CliState (Maybe Prog, Strategy)
+
+type HaltProgram = Bool
+type LastFilePath = FilePath
+data CliState = CliState (Maybe Prog, Strategy, HaltProgram, LastFilePath)
+
+initialState :: CliState
+initialState = CliState (Nothing, defaultStrategy, False, "")
+
+setStrategy :: CliState -> Strategy -> CliState
+setStrategy (CliState (p, _, h, fp)) s = CliState (p, s, h, fp)
+
+setHaltFlag :: CliState -> HaltProgram -> CliState
+setHaltFlag (CliState (p, s, _, fp)) h = CliState (p, s, h, fp)
+
+setProgram :: CliState -> Maybe Prog -> CliState
+setProgram (CliState (_, s, h, fp)) p = CliState (p, s, h, fp)
+
+getProgram :: CliState -> Maybe Prog
+getProgram (CliState (p, _, _, _)) = p
 
 -- entry point for cli
 main :: IO ()
-main = putStrLn greeting >> inputListener (CliState (Nothing, defaultStrategy))
+main = putStrLn greeting >> inputListener initialState
 
 -- listens for input and delegates
 -- input to handler; does this in a 
@@ -39,51 +58,51 @@ inputListener state = do
   inp <- getLine
   effect <- handleInput inp state
   case effect of
-    Just (io, newState) -> io >> inputListener newState
-    Nothing             -> putStrLn quitMsg
+    (CliState (_, _, True, _)) -> putStrLn quitMsg
+    newState                   -> inputListener newState
 
-type InputEffect = Maybe ((IO ()), CliState)
-type InputResult = IO (InputEffect)
+type InputResult = IO (CliState)
 
 handleInput :: String -> CliState -> InputResult
 handleInput inp state = case toArgs inp of
   Just args -> handleCliCommand args state
-  -- try to parse input as script input
-  Nothing   -> return (Just (putStrLn "invalid arguments given", state))
+  -- TODO: try to parse input as script input
+  Nothing   -> (putStrLn "invalid arguments given") >> return (state)
 
 type Args = [String]
 
 handleCliCommand :: Args -> CliState -> InputResult
-handleCliCommand [] state = return (Just (return (), state))
+handleCliCommand [] state = return (state)
 handleCliCommand (command:params) state
-  | command `elem` [":h", ":help"] = return (Just (putStrLn helpMsg, state))
-  | command `elem` [":q", ":quit"] = return (Nothing)
-  | command `elem` [":s", ":set" ] = return (changeStrategy (head params) state)
+  | command `elem` [":h", ":help"] = (putStrLn helpMsg) >> return (state)
+  | command `elem` [":q", ":quit"] = return (setHaltFlag state True)
+  | command `elem` [":s", ":set" ] = handleStrategyChange (head params) state
   | command `elem` [":l", ":load"]
     && params == []                = handleLoad [] state
   | command `elem` [":l", ":load"] = handleLoad (head params) state
   | command `elem` [":p", ":prog"] = handleShowProg state
-  | otherwise                      = return (Just (return (), state))
+  | otherwise                      = return (state)
 
 handleShowProg :: CliState -> InputResult
-handleShowProg (CliState (Just prog, strat)) = return (Just (putStrLn (pretty prog), CliState (Just prog, strat)))
-handleShowProg state = return (Just (putStrLn "No program loaded.", state))
+handleShowProg state = case getProgram state of 
+  Nothing -> (putStrLn "No program loaded.") >> return (state)
+  Just p  -> (putStrLn (pretty p)) >> return (state)
 
 -- if a filepath is given, loads the specified
 -- program; otherwise unloads the current programm
 handleLoad :: FilePath -> CliState -> InputResult
-handleLoad []       (CliState (_, strat)) = return (Just (putStrLn "Unloaded module.", CliState (Nothing, strat)))
-handleLoad filePath (CliState (_, strat)) = do
+handleLoad []       state = (putStrLn "Unloaded module.") >> return (setProgram state Nothing)
+handleLoad filePath state = do
   parsed <- parseFile filePath
   case parsed of
-    Left errMsg -> return (Just (putStrLn errMsg, CliState (Nothing, strat)))
-    Right prog  -> return (Just (putStrLn "Module loaded.", CliState (Just prog, strat)))
+    Left errMsg -> (putStrLn errMsg) >> return (state)
+    Right prog  -> (putStrLn "Module loaded.") >> return (setProgram state (Just prog))
 
-changeStrategy :: String -> CliState -> InputEffect
-changeStrategy [] state = Just (return (), state)
-changeStrategy alias (CliState (prog, oldStrat)) = case getStrategyByAlias alias of
-  Just newStrat -> Just (putStrLn ("Changed strategy to '" ++ alias ++ "'"), CliState (prog, newStrat))
-  Nothing       -> Just (putStrLn "Invalid strategy alias, see :help for details", CliState (prog, oldStrat))
+handleStrategyChange :: String -> CliState -> InputResult
+handleStrategyChange [] state = return (state)
+handleStrategyChange alias state = case getStrategyByAlias alias of
+  Just newStrat -> (putStrLn ("Changed strategy to '" ++ alias ++ "'")) >> return (setStrategy state newStrat)
+  Nothing       -> (putStrLn "Invalid strategy alias, see :help for details") >> return (state)
 
 getStrategyByAlias :: String -> Maybe Strategy
 getStrategyByAlias alias
