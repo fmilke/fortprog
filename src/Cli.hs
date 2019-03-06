@@ -14,9 +14,6 @@ helpMsg = "Commands available from the prompt:\n\
   \                     'ro', 'ri', 'po', or 'pi'.\n\
   \  :q[uit]            Exits the interactive environment."
 
-invalidInputMsg :: String
-invalidInputMsg = "Invalid input. Try :help for a list of commands"
-
 quitMsg :: String
 quitMsg = "Leaving..."
 
