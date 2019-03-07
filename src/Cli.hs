@@ -4,7 +4,8 @@ import Strategy
 import Pretty
 import Term
 
-import System.FilePath
+import System.FilePath(takeBaseName)
+import Data.List(isPrefixOf)
 
 helpMsg :: String
 helpMsg = "Commands available from the prompt:\n\
@@ -60,7 +61,7 @@ getFilePath (CliState (_, _, _, fp)) = fp
 -- outputs the result of evaluation of a given
 -- term in the context of a given state
 evaluateExpr :: CliState -> Term -> String
-evaluateExpr (CliState (Nothing, _, _, _)) _   = "No program given"
+evaluateExpr (CliState (Nothing, _, _, _)) _   = "No program to evaluate input given"
 evaluateExpr (CliState (Just p, s, _, _)) expr = pretty (evaluateWith s p expr)
 
 -- entry point for cli
@@ -112,7 +113,10 @@ handleCliCommand (command:params) state
     && params == []                  = handleLoad [] state
   | command `elem` [":l", ":load"]   = handleLoad (head params) state
   | command `elem` [":p", ":prog"]   = handleShowProg state
-  | otherwise                        = return (state)
+  | otherwise                        = (putStrLn $ invalidCommandPrompt command) >> return (state)
+
+invalidCommandPrompt :: String -> String
+invalidCommandPrompt command = "Unknown command \"" ++ command ++ "\"\nType \":help\" for help."
 
 -- prints the currently loaded program to the console 
 handleShowProg :: CliState -> InputResult
@@ -147,30 +151,18 @@ getStrategyByAlias alias
   | alias == "ri" = Just riStrategy
   | otherwise     = Nothing
 
--- a list of all valid commands
--- (except Simpel Haskel syntax)
-validCommands :: [String]
-validCommands = [
-    ":q", ":quit",
-    ":h", ":help",
-    ":s", ":set",
-    ":l", ":load",
-    ":r", ":reload",
-    ":p", ":prog" -- displays current program
-  ]
-
-isValidCommand :: String -> Bool
-isValidCommand command =  command `elem` validCommands
-  
 -- checks if a string qualifies
 -- for :command <param> syntax
 -- and parses it if possible
 toArgs :: String -> Maybe Args
 toArgs str = toArgs' str [] []
   where
-    toArgs' []       acc result = Just (result ++ [acc])
-    toArgs' (' ':cs) acc []     = if isValidCommand acc
+    toArgs' [] acc []     = if ":" `isPrefixOf` acc
+      then Just ([acc])
+      else Nothing
+    toArgs' (' ':cs) acc []     = if ":" `isPrefixOf` acc
       then toArgs' cs [] [acc]
       else Nothing
+    toArgs' []       acc result = Just (result ++ [acc])
     toArgs' (' ':cs) acc result = toArgs' cs [] (result ++ [acc])
     toArgs' (c  :cs) acc result = toArgs' cs (acc ++ [c]) result
