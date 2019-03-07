@@ -51,7 +51,6 @@ selectAt (Comb _ (t:ts)) (p:ps)
 -- Pos:   position of sub term to replace
 -- Term2: new sub term
 -- Term3: term with replaced sub term
--}
 replaceAt :: Term -> Pos -> Term -> Term
 replaceAt _ [] t2               = t2
 replaceAt (Var n) (_:_) _       = error ("Trying to replace child of Var: " ++ n)

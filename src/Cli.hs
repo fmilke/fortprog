@@ -135,7 +135,7 @@ handleLoad []           state = (putStrLn "Unloaded module.") >> return (setProg
 handleLoad (filePath:_) state = do
   parsed <- parseFile filePath
   case parsed of
-    Left errMsg -> (putStrLn errMsg) >> return (state)
+    Left errMsg -> (putStrLn errMsg) >> return (setFilePath state filePath)
     Right prog  -> (putStrLn "Module loaded.") >> return (setFilePath (setProgram state (Just prog)) filePath)
 
 -- replaces the current strategy by one
