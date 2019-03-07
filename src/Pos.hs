@@ -13,8 +13,8 @@ module Pos(
 import Term
 
 -- t(abs(x), y):
--- Pos(x) = 0 : 0 : []
--- Pos(y) = 1 : []
+-- Pos(x) = 1 : 1 : []
+-- Pos(y) = 2 : []
 type Pos = [Int]
 
 above :: Pos -> Pos -> Bool
