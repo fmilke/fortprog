@@ -41,7 +41,7 @@ piStrategy prog term = remove redPos below redPos where
 -- that are in relation to a postition from the first list
 -- rel should not be reflexive
 remove :: [[Int]] -> ([Int] ->[Int] -> Bool) -> [[Int]] -> [[Int]]
-remove [] rel ps = ps
+remove []     _   ps = ps
 remove (v:vs) rel ps = remove vs rel (filter (\p -> not(rel v p)) ps)
 
 -- perform a single reduction of

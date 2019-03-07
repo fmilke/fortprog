@@ -17,10 +17,7 @@ tests = [
     testMatch2,
     testSelectAt1,
     testSelectAt2,
-    testSelectAt3,
-    testSelectAt4,
-    testSelectAt5,
-    testSelectAt6
+    testSelectAt3
   ]
 
 testAll :: IO ()
@@ -61,12 +58,3 @@ testSelectAt2 = selectAt (Comb "abs" [(Var "x")]) [] == Comb "abs" [(Var "x")]
 
 testSelectAt3 :: Bool
 testSelectAt3 = selectAt (Comb "abs" [(Var "x")]) [1] == Var "x"
-
-testSelectAt4 :: Bool
-testSelectAt4 = isNothing (maybeSelectAt (Comb "abs" [(Var "x")]) [2])
-
-testSelectAt5 :: Bool
-testSelectAt5 = isNothing (maybeSelectAt (Var "x") [1])
-
-testSelectAt6 :: Bool
-testSelectAt6 = isNothing (maybeSelectAt (Var "x") [1])

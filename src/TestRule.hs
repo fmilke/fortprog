@@ -2,8 +2,6 @@ import Test(testMultiple)
 import Rule
 import Prog
 import Term
-import Pos
-import Match
 import Subst
 import Data.Maybe(isNothing)
 

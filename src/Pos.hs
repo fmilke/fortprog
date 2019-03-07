@@ -4,7 +4,6 @@ module Pos(
   leftOf,
   rightOf,
   selectAt,
-  maybeSelectAt,
   replaceAt,
   allPos,
   Pos
@@ -46,17 +45,6 @@ selectAt (Comb _ (t:ts)) (p:ps)
   | p == 1    = selectAt t ps
   | p <  1    = error "Invalid position"
   | otherwise = selectAt (Comb "" ts) ((p - 1):ps)
-
--- this is a more secure version of selectAt
--- and therefore is more suitable for tests
-maybeSelectAt :: Term -> Pos -> Maybe Term
-maybeSelectAt t               []     = Just t
-maybeSelectAt (Var _)         (_:_)  = Nothing
-maybeSelectAt (Comb _ [])         _  = Nothing
-maybeSelectAt (Comb _ (t:ts)) (p:ps) 
-  | p == 1    = maybeSelectAt t ps
-  | p <  1    = Nothing
-  | otherwise = maybeSelectAt (Comb "" ts) ((p - 1):ps)
 
 {-|
   @Term: term to replace in
