@@ -18,10 +18,10 @@ import Term
 type Pos = [Int]
 
 above :: Pos -> Pos -> Bool
-above [] _ = True
 above _ [] = False
+above [] _ = True
 above (p:ps) (q:qs) = p == q && above ps qs
-    
+
 below :: Pos -> Pos -> Bool
 below [] _ = False
 below _ [] = True
@@ -31,7 +31,7 @@ leftOf :: Pos -> Pos -> Bool
 leftOf [] _ = False
 leftOf _ [] = False
 leftOf (p:ps) (q:qs) = p < q || (p == q && leftOf ps qs)
-  
+
 rightOf :: Pos -> Pos -> Bool
 rightOf [] _ = False
 rightOf _ [] = False
