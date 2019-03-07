@@ -10,53 +10,57 @@ import Data.List(sortBy)
 -- Alias type for evaluation strategies
 type Strategy = Prog -> Term -> [Pos]
 
--- loStrategy :: Strategy
--- loStrategy prog term = case sortBy comp (reduciblePos prog term) of
---   [] -> []
---   ps -> [head ps]
---   where
---     comp a b | a `above`b   = LT
---              | a `leftOf` b = LT
---              | otherwise    = GT
+loStrategy :: Strategy
+loStrategy prog term = case sortBy comp (reduciblePos prog term) of
+  [] -> []
+  ps -> [head ps]
+  where
+    comp a b | a `above`b   = LT
+             | a `leftOf` b = LT
+             | otherwise    = GT
 
--- liStrategy :: Strategy
--- liStrategy prog term = case sortBy comp (reduciblePos prog term) of
---   [] -> []
---   ps -> [head ps]
---   where
---     comp a b | a `leftOf` b = LT
---              | a `below` b  = LT
---              | otherwise    = GT
+liStrategy :: Strategy
+liStrategy prog term = case sortBy comp (reduciblePos prog term) of
+  [] -> []
+  ps -> [head ps]
+  where
+    comp a b | a `leftOf` b = LT
+             | a `below` b  = LT
+             | otherwise    = GT
 
--- roStrategy :: Strategy
--- roStrategy prog term = case sortBy comp (reduciblePos prog term) of
---   [] -> []
---   ps -> [head ps]
---   where
---     comp a b | a `above` b   = LT
---              | a `rightOf` b = LT
---              | otherwise     = GT
+roStrategy :: Strategy
+roStrategy prog term = case sortBy comp (reduciblePos prog term) of
+  [] -> []
+  ps -> [head ps]
+  where
+    comp a b | a `above` b   = LT
+             | a `rightOf` b = LT
+             | otherwise     = GT
 
--- riStrategy :: Strategy
--- riStrategy prog term = case sortBy comp (reduciblePos prog term) of
---   [] -> []
---   ps -> [head ps]
---   where
---     comp a b | a `rightOf` b = LT
---              | a `below` b   = LT
---              | otherwise     = GT
+riStrategy :: Strategy
+riStrategy prog term = case sortBy comp (reduciblePos prog term) of
+  [] -> []
+  ps -> [head ps]
+  where
+    comp a b | a `rightOf` b = LT
+             | a `below` b   = LT
+             | otherwise     = GT
 
--- poStrategy :: Strategy
--- poStrategy prog term = let sorted = sortBy comp (reduciblePos prog term) in
---   filter (belowAll sorted) sorted
---     where
---       comp a b | a `above` b = LT
---                | otherwise   = GT
---       belowAll []     _ = True
---       belowAll (a:as) e = if e `below` a then belowAll as e else False
+poStrategy :: Strategy
+poStrategy prog term = let sorted = sortBy comp (reduciblePos prog term) in
+  filter (belowAll sorted) sorted
+    where
+      comp a b | a `above` b = LT
+               | otherwise   = GT
+      belowAll []     _ = True
+      belowAll (a:as) e = if e == a || e `above` a then belowAll as e else False
 
--- piStrategy :: Strategy
--- piStrategy = poStrategy
+piStrategy :: Strategy
+piStrategy prog term = let sorted = reduciblePos prog term in
+  filter (belowAll sorted) sorted
+    where
+      belowAll []     _ = True
+      belowAll (a:as) e = if e == a || e `below` a then belowAll as e else False
 
 -- perform a single reduction of
 -- a given term with the given strategy
