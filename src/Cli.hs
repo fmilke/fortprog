@@ -6,6 +6,7 @@ import Term
 
 import System.FilePath(takeBaseName)
 import Data.List(isPrefixOf)
+import Data.Char(isSpace)
 
 helpMsg :: String
 helpMsg = "Commands available from the prompt:\n\
@@ -92,7 +93,7 @@ type InputResult = IO (CliState)
 -- tries to evaluate it with the currently
 -- loaded program
 handleInput :: String -> CliState -> InputResult
-handleInput inp state = case toArgs inp of
+handleInput inp state = case toArgs (strip inp) of
   Just args -> handleCliCommand args state
   Nothing   -> case parse inp of
     Left errMsg -> (putStrLn errMsg) >> return (state)
@@ -107,11 +108,9 @@ handleCliCommand [] state = return (state)
 handleCliCommand (command:params) state
   | command `elem` [":h", ":help"]   = (putStrLn helpMsg) >> return (state)
   | command `elem` [":q", ":quit"]   = return (setHaltFlag state True)
-  | command `elem` [":s", ":set" ]   = handleStrategyChange (head params) state
-  | command `elem` [":r", ":reload"] = handleLoad (getFilePath state) state
-  | command `elem` [":l", ":load"]
-    && params == []                  = handleLoad [] state
-  | command `elem` [":l", ":load"]   = handleLoad (head params) state
+  | command `elem` [":s", ":set" ]   = handleStrategyChange params state
+  | command `elem` [":r", ":reload"] = handleLoad [getFilePath state] state
+  | command `elem` [":l", ":load"]   = handleLoad params state
   | command `elem` [":p", ":prog"]   = handleShowProg state
   | otherwise                        = (putStrLn $ invalidCommandPrompt command) >> return (state)
 
@@ -126,9 +125,9 @@ handleShowProg state = case getProgram state of
 
 -- if a filepath is given, loads the specified
 -- program; otherwise unloads the current programm
-handleLoad :: FilePath -> CliState -> InputResult
-handleLoad []       state = (putStrLn "Unloaded module.") >> return (setProgram state Nothing)
-handleLoad filePath state = do
+handleLoad :: Args -> CliState -> InputResult
+handleLoad []           state = (putStrLn "Unloaded module.") >> return (setProgram state Nothing)
+handleLoad (filePath:_) state = do
   parsed <- parseFile filePath
   case parsed of
     Left errMsg -> (putStrLn errMsg) >> return (state)
@@ -136,9 +135,9 @@ handleLoad filePath state = do
 
 -- replaces the current strategy by one
 -- indicated by an alias
-handleStrategyChange :: String -> CliState -> InputResult
-handleStrategyChange [] state = return (state)
-handleStrategyChange alias state = case getStrategyByAlias alias of
+handleStrategyChange :: Args -> CliState -> InputResult
+handleStrategyChange [] state = (putStrLn "Missing argument.") >> return (state)
+handleStrategyChange (alias:_) state = case getStrategyByAlias alias of
   Just newStrat -> (putStrLn ("Changed strategy to '" ++ alias ++ "'")) >> return (setStrategy state newStrat)
   Nothing       -> (putStrLn "Invalid strategy alias, see :help for details") >> return (state)
 
@@ -166,3 +165,8 @@ toArgs str = toArgs' str [] []
     toArgs' []       acc result = Just (result ++ [acc])
     toArgs' (' ':cs) acc result = toArgs' cs [] (result ++ [acc])
     toArgs' (c  :cs) acc result = toArgs' cs (acc ++ [c]) result
+
+
+strip :: String -> String
+strip = f . f
+  where f = reverse . dropWhile isSpace
