@@ -11,7 +11,6 @@ module Pos(
 ) where
 
 import Term
-import Utils(mapNth)
 
 -- t(abs(x), y):
 -- Pos(x) = 0 : 0 : []
@@ -71,6 +70,12 @@ replaceAt (Var n) (_:_) _       = error ("Trying to replace child of Var: " ++ n
 replaceAt (Comb n ts) (p:ps) t2 = Comb n (
     mapNth (\subT -> (replaceAt subT ps t2)) ts p
   )
+
+-- map like function, but only applies to the nth element
+mapNth :: (a -> a) -> [a] -> Int -> [a]
+mapNth fn (a:as) 1 = (fn a) : as
+mapNth _  []     _ = error ("Access out of bound index")
+mapNth fn (a:as) n = a : (mapNth fn as (n - 1))
 
 -- returns all possible position of sub-terms in a given term
 allPos :: Term -> [Pos]
