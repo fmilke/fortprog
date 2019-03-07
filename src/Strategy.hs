@@ -1,4 +1,13 @@
-module Strategy where
+module Strategy (
+  loStrategy,
+  liStrategy,
+  roStrategy,
+  riStrategy,
+  poStrategy,
+  piStrategy,
+  reduceWith,
+  evaluateWith  
+) where
 
 import Pos
 import Rule
@@ -9,33 +18,42 @@ import Prog
 type Strategy = Prog -> Term -> [Pos]
 
 loStrategy :: Strategy
-loStrategy prog term = remove lmPos above lmPos where
-  lmPos = remove redPos leftOf redPos where
-    redPos = reduciblePos prog term
-
+loStrategy prog term = remove lmPos above lmPos
+  where
+    lmPos = remove redPos leftOf redPos
+      where
+        redPos = reduciblePos prog term
 
 liStrategy :: Strategy
-liStrategy prog term = remove lmPos below lmPos where
-  lmPos = remove redPos leftOf redPos where
-    redPos = reduciblePos prog term
+liStrategy prog term = remove lmPos below lmPos 
+  where
+    lmPos = remove redPos leftOf redPos
+      where
+        redPos = reduciblePos prog term
 
 roStrategy :: Strategy
-roStrategy prog term = remove rmPos above rmPos where
-  rmPos = remove redPos rightOf redPos where
-    redPos = reduciblePos prog term
+roStrategy prog term = remove rmPos above rmPos
+  where
+    rmPos = remove redPos rightOf redPos 
+      where
+        redPos = reduciblePos prog term
 
 riStrategy :: Strategy
-riStrategy prog term = remove rmPos below rmPos where
-  rmPos = remove redPos rightOf redPos where
-    redPos = reduciblePos prog term
+riStrategy prog term = remove rmPos below rmPos 
+  where
+    rmPos = remove redPos rightOf redPos 
+      where
+        redPos = reduciblePos prog term
 
 poStrategy :: Strategy
-poStrategy prog term = remove redPos above redPos where
-  redPos = reduciblePos prog term
+poStrategy prog term = remove redPos above redPos 
+  where
+    redPos = reduciblePos prog term
 
 piStrategy :: Strategy
-piStrategy prog term = remove redPos below redPos where
-  redPos = reduciblePos prog term
+piStrategy prog term = remove redPos below redPos 
+  where
+    redPos = reduciblePos prog term
 
 -- removes all positions from the seccond list
 -- that are in relation to a postition from the first list
