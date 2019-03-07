@@ -46,11 +46,11 @@ selectAt (Comb _ (t:ts)) (p:ps)
   | p <  1    = error "Invalid position"
   | otherwise = selectAt (Comb "" ts) ((p - 1):ps)
 
-{-|
-  @Term: term to replace in
-  @Pos: position of sub term to replace
-  @Term: new sub term
-  @Term: term with replaced sub term
+
+-- Term1: term to replace in
+-- Pos:   position of sub term to replace
+-- Term2: new sub term
+-- Term3: term with replaced sub term
 -}
 replaceAt :: Term -> Pos -> Term -> Term
 replaceAt _ [] t2               = t2
