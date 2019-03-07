@@ -153,6 +153,8 @@ getStrategyByAlias alias
   | alias == "li" = Just liStrategy
   | alias == "ro" = Just roStrategy
   | alias == "ri" = Just riStrategy
+  | alias == "po" = Just poStrategy
+  | alias == "pi" = Just piStrategy
   | otherwise     = Nothing
 
 -- checks if a string qualifies
