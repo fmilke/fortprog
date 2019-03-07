@@ -4,6 +4,8 @@ import Strategy
 import Pretty
 import Term
 
+import System.FilePath
+
 helpMsg :: String
 helpMsg = "Commands available from the prompt:\n\
   \  <expression>       Evaluates the specified expression.\n\
@@ -70,12 +72,17 @@ main = putStrLn greeting >> inputListener initialState
 -- loop until handler returns Nothing
 inputListener :: CliState -> IO ()
 inputListener state = do
-  putStr "> "
+  putStr $ getPromptIndent state
   inp <- getLine
   effect <- handleInput inp state
   case effect of
     (CliState (_, _, True, _)) -> putStrLn quitMsg
     newState                   -> inputListener newState
+
+getPromptIndent :: CliState -> String
+getPromptIndent state = case getProgram state of
+  Just _  -> (takeBaseName $ getFilePath state) ++ "> "
+  Nothing -> "> "
 
 type InputResult = IO (CliState)
 
