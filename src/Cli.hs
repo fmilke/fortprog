@@ -81,6 +81,9 @@ inputListener state = do
     (CliState (_, _, True, _)) -> putStrLn quitMsg
     newState                   -> inputListener newState
 
+
+-- returns the console prompt indentation
+-- based on the presence of a loaded program
 getPromptIndent :: CliState -> String
 getPromptIndent state = case getProgram state of
   Just _  -> (takeBaseName $ getFilePath state) ++ "> "
@@ -114,6 +117,8 @@ handleCliCommand (command:params) state
   | command `elem` [":p", ":prog"]   = handleShowProg state
   | otherwise                        = (putStrLn $ invalidCommandPrompt command) >> return (state)
 
+-- constructs error message
+-- with a given command
 invalidCommandPrompt :: String -> String
 invalidCommandPrompt command = "Unknown command \"" ++ command ++ "\"\nType \":help\" for help."
 
@@ -157,7 +162,7 @@ toArgs :: String -> Maybe Args
 toArgs str = toArgs' str [] []
   where
     toArgs' [] acc []     = if ":" `isPrefixOf` acc
-      then Just ([acc])
+      then Just [acc]
       else Nothing
     toArgs' (' ':cs) acc []     = if ":" `isPrefixOf` acc
       then toArgs' cs [] [acc]
@@ -166,7 +171,7 @@ toArgs str = toArgs' str [] []
     toArgs' (' ':cs) acc result = toArgs' cs [] (result ++ [acc])
     toArgs' (c  :cs) acc result = toArgs' cs (acc ++ [c]) result
 
-
+-- trims whitespaces on the left and right off
 strip :: String -> String
 strip = f . f
   where f = reverse . dropWhile isSpace
