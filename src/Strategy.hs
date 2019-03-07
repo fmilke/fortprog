@@ -6,7 +6,8 @@ module Strategy (
   poStrategy,
   piStrategy,
   reduceWith,
-  evaluateWith  
+  evaluateWith,
+  Strategy
 ) where
 
 import Pos
