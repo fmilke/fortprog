@@ -15,8 +15,8 @@ helpMsg = "Commands available from the prompt:\n\
   \  :l[oad] <file>     Loads the specified file.\n\
   \  :l[oad]            Unloads the currently loaded file.\n\
   \  :r[eload]          Reloads the lastly loaded file.\n\
-  \  :s[et] <strategy>  Sets the specified evaluation strategy\n\
   \  :p[rog]            Outputs the currently loaded program\n\
+  \  :s[et] <strategy>  Sets the specified evaluation strategy\n\
   \                     where <strategy> is one of 'lo', 'li',\n\
   \                     'ro', 'ri', 'po', or 'pi'.\n\
   \  :q[uit]            Exits the interactive environment."
